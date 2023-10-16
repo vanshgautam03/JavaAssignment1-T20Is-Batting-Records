@@ -34,4 +34,26 @@ public class DBUtility {
         }
         return players;
     }
+
+    public static XYChart.Series<String, Integer> getDataForCountryChart() {
+        XYChart.Series<String, Integer> series = new XYChart.Series<>();
+        series.setName("Total Runs Per Country");
+        String sql = "SELECT Country, SUM(TotalRuns) AS TotalRunsPerCountry " +
+                        "FROM Players " +
+                        "GROUP BY Country; ";
+        try (
+                Connection connection = DriverManager.getConnection(dbUrl, userName, password);
+                Statement statement = connection.createStatement();
+                ResultSet resultSet = statement.executeQuery(sql);
+        ) {
+            while (resultSet.next()) {
+                String country = resultSet.getString("Country");
+                int runs = resultSet.getInt("TotalRunsPerCountry");
+                series.getData().add(new XYChart.Data<>(country, runs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return series;
+    }
 }
